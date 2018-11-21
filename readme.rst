@@ -1,70 +1,128 @@
-###################
-What is CodeIgniter
-###################
+# Array Config Writer 
 
-CodeIgniter is an Application Development Framework - a toolkit - for people
-who build web sites using PHP. Its goal is to enable you to develop projects
-much faster than you could if you were writing code from scratch, by providing
-a rich set of libraries for commonly needed tasks, as well as a simple
-interface and logical structure to access these libraries. CodeIgniter lets
-you creatively focus on your project by minimizing the amount of code needed
-for a given task.
+This php library can be used to update array values in php a file.
+Some applications use php array to store configuration values and to update the values
+users will have to manually open the configuration file and update the value.
 
-*******************
-Release Information
-*******************
+This library makes the task of updating the array easy. You programmatically update 
+the values of the array.
 
-This repo contains in-development code for future releases. To download the
-latest stable release please visit the `CodeIgniter Downloads
-<https://codeigniter.com/download>`_ page.
+##Installation 
 
-**************************
-Changelog and New Features
-**************************
+* Download the library and extract it in a folder of your application. The folder choice depends on your application.
 
-You can find a list of all changes for each release in the `user
-guide change log <https://github.com/bcit-ci/CodeIgniter/blob/develop/user_guide_src/source/changelog.rst>`_.
 
-*******************
-Server Requirements
-*******************
+##Usage
+* Include the class library to be available for usage `require_once 'class-array-config-writer.php';`
+* Create an instance of  `Array_Config_Writer` class for the file that holds the php array we want to update
 
-PHP version 5.6 or newer is recommended.
+    $config_writer = new Array_Config_Writer($config_file, $variable_name , $auto_save );
 
-It should work on 5.3.7 as well, but we strongly advise you NOT to run
-such old versions of PHP, because of potential security and performance
-issues, as well as missing features.
+Where :
 
-************
-Installation
-************
+* **$config_file** (string) : The absolute path to the file where the array is place 
+* **$variable_name** (string) : The variable name of the array we want to update 
+* **$auto_save** (boolean) : Whether to automatically save the changes after the operation
 
-Please see the `installation section <https://codeigniter.com/user_guide/installation/index.html>`_
-of the CodeIgniter User Guide.
+Supported variable Styles:
+* `Single index $config[ 'key'] = 'value' ;`
+* `Multi dimensional $config['key1']['key2'] = 'value';`
 
-*******
-License
-*******
+You can not use the library to update something like `$config = array( 'key' => 'value' );`
 
-Please see the `license
-agreement <https://github.com/bcit-ci/CodeIgniter/blob/develop/user_guide_src/source/license.rst>`_.
+**Notes:** 
+* The library expect the variable to be indexed 
+* The file can have other variables aside our target variable
 
-*********
-Resources
-*********
 
--  `User Guide <https://codeigniter.com/docs>`_
--  `Language File Translations <https://github.com/bcit-ci/codeigniter3-translations>`_
--  `Community Forums <http://forum.codeigniter.com/>`_
--  `Community Wiki <https://github.com/bcit-ci/CodeIgniter/wiki>`_
--  `Community Slack Channel <https://codeigniterchat.slack.com>`_
+Now you can start updating the index of the array like this 
 
-Report security issues to our `Security Panel <mailto:security@codeigniter.com>`_
-or via our `page on HackerOne <https://hackerone.com/codeigniter>`_, thank you.
+    $config_writer->write('key' , value );
 
-***************
-Acknowledgement
-***************
+**Note:** 
+* You can set value to any php variable type 
+* The library treats numeric index as it is. Meaning '21' is different from 21
 
-The CodeIgniter team would like to thank EllisLab, all the
-contributors to the CodeIgniter project and you, the CodeIgniter user.
+##Examples
+
+**PHP File** config.php
+
+```php
+    /*
+    |--------------------------------------------------------------------------
+    | Site Name
+    |--------------------------------------------------------------------------
+    |
+    | 
+    |
+    */
+    $config[ 'site_name'] = 'Example Site';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    |  Enable caching
+    |-------------------==-------------------------------------------------------
+    |
+    |
+    */
+    $config[ 'enable_caching'] = true;
+
+    /*
+    |--------------------------------------------------------------------------
+    |  Custom Array
+    |-------------------==-------------------------------------------------------
+    |
+    |
+    */
+    $config[ 'message'] = array(
+                                'title' => 'Welcome' ,
+                                 'body' => 'Thanks for your interest in the library'
+                            );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    |  Another Config Variable for the database 
+    |-------------------==-------------------------------------------------------
+    |
+    |
+    */
+    $db[ 'database'] =  '';
+    $db[ 'username'] =  '';
+```
+
+Create an instance of the library
+
+    $config_writer = new Array_Config_Writer( APP_PATH.'config/config.php', 'config' );
+     
+    // update the site name
+
+    $config_writer->write('site_name' , "New Site Name' );
+
+## Method chaining 
+
+    $config_writer->write('site_name' , "New Site Name' )->write('enable_caching' , false );
+
+
+To update the `'message'` index which has array has value
+
+* First get the current value 
+
+    $meesage = $config['message'];
+
+* Then change its value(s) 
+    
+    $message['title'] = 'My New title' ;
+    $message['body'] = 'New message body' ;
+
+* Or completely set new array for the message index
+    
+    // assuming the admin sent a form, Just an example, you should validate user post! :d
+    $message = $_POST['message'];
+
+* Save it with the library 
+
+    $config_writer->write('message' , $message );
+
+[Read More](http://hollax.github.io/ArrayConfigWriter)
